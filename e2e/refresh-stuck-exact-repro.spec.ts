@@ -37,7 +37,7 @@ test.describe('EXACT BUG REPRO: Refresh causes stuck resyncing with No majorityH
     let browser: Browser;
 
     test.beforeAll(async () => {
-        browser = await chromium.launch({ headless: false });
+        browser = await chromium.launch({ headless: !process.env.HEADED });
     });
 
     test.afterAll(async () => {

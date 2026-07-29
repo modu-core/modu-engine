@@ -22,7 +22,7 @@ test.describe('Second Client Desync with Many Entities', () => {
     let page2: Page;
 
     test.beforeAll(async () => {
-        browser = await chromium.launch({ headless: false });
+        browser = await chromium.launch({ headless: !process.env.HEADED });
     });
 
     test.afterAll(async () => {

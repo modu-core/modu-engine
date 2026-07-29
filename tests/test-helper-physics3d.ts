@@ -11,8 +11,8 @@ import {
     World, RigidBody, BodyType, WorldState,
     resetBodyIdCounter, getBodyIdCounter, setBodyIdCounter,
     saveWorldState, loadWorldState
-} from '../src/physics3d';
-import { toFixed, vec3Zero, quatIdentity } from '../src/fixed-math';
+} from '../src/plugins/physics3d';
+import { toFixed, vec3Zero, quatIdentity } from '../src/math';
 
 /** Simple hash for 3D world state - for testing only */
 function computeWorldChecksum(world: World): number {
@@ -91,8 +91,7 @@ export function createTestEngine(playerId: string, options: TestEngineOptions = 
             const body = createBody(
                 BodyType.Static,
                 createBox(toFixed(hw), toFixed(hh), toFixed(hd)),
-                { x: toFixed(x), y: toFixed(y), z: toFixed(z) },
-                quatIdentity()
+                toFixed(x), toFixed(y), toFixed(z)
             );
             addBody(world, body);
             if (id) bodies.set(id, body);
@@ -103,8 +102,7 @@ export function createTestEngine(playerId: string, options: TestEngineOptions = 
             const body = createBody(
                 BodyType.Dynamic,
                 createBox(toFixed(hw), toFixed(hh), toFixed(hd)),
-                { x: toFixed(x), y: toFixed(y), z: toFixed(z) },
-                quatIdentity()
+                toFixed(x), toFixed(y), toFixed(z)
             );
             addBody(world, body);
             if (id) bodies.set(id, body);
@@ -115,8 +113,7 @@ export function createTestEngine(playerId: string, options: TestEngineOptions = 
             const body = createBody(
                 BodyType.Dynamic,
                 createSphere(toFixed(radius)),
-                { x: toFixed(x), y: toFixed(y), z: toFixed(z) },
-                quatIdentity()
+                toFixed(x), toFixed(y), toFixed(z)
             );
             addBody(world, body);
             if (id) bodies.set(id, body);
@@ -177,5 +174,5 @@ export const createStandaloneEngine = createTestEngine;
 export type StandaloneEngine = TestEngine;
 
 // Re-export for convenience
-export { resetBodyIdCounter, getBodyIdCounter, setBodyIdCounter } from '../src/physics3d';
-export { toFixed, toFloat, vec3, quatFromAxisAngle, FP_ONE } from '../src/fixed-math';
+export { resetBodyIdCounter, getBodyIdCounter, setBodyIdCounter } from '../src/plugins/physics3d';
+export { toFixed, toFloat, vec3, quatFromAxisAngle, FP_ONE } from '../src/math';

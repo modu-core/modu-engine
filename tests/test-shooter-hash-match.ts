@@ -9,7 +9,7 @@
 
 import WebSocket from 'ws';
 import { createStandaloneEngine, resetBodyIdCounter } from './test-helper-physics3d';
-import { toFixed, FP_2PI } from '../src/fixed-math';
+import { toFixed, FP_2PI } from '../src/math';
 
 // Import shooter game logic
 const GROUND_SIZE = 50;

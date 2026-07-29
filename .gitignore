@@ -2,3 +2,7 @@
 node_modules
 src/version.ts
 dist/
+
+# Playwright output artifacts (screenshots, traces, error contexts)
+test-results/
+playwright-report/

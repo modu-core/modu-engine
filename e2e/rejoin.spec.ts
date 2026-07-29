@@ -14,7 +14,7 @@ test.describe('Rejoin Bug', () => {
     let page2: Page;
 
     test.beforeAll(async () => {
-        browser = await chromium.launch({ headless: false }); // Set to true for CI
+        browser = await chromium.launch({ headless: !process.env.HEADED }); // Set to true for CI
     });
 
     test.afterAll(async () => {
