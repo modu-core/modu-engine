@@ -94,6 +94,36 @@ npx http-server -p 3000
 - [snake.html](examples/snake.html) — Classic snake
 - [2d-shooter.html](examples/2d-shooter.html) — Top-down shooter
 
+## Testing
+
+```bash
+npm test          # unit tests (vitest)
+```
+
+Unit tests run in-process and need nothing else. They cover fixed-point math,
+hashing, state deltas, partitioning, and multi-client convergence in both 2D
+and 3D — that several independent simulations fed the same ordered inputs reach
+identical state hashes.
+
+```bash
+npm run test:e2e            # browser tests (playwright), headless
+HEADED=1 npm run test:e2e   # same, with visible browsers
+```
+
+The e2e specs drive two real browsers against a served example and compare each
+client's world state hash, so they need more setup:
+
+- The browser bundle and a static server on `:3001` are handled for you
+  (`pretest:e2e` builds the bundle; the Playwright config starts the server).
+- A **modu-network cluster must be running separately** — a central service and
+  at least one node from the sibling `modu-network` repo. See that repo's
+  Testing section; no database is required.
+- First run only: `npx playwright install chromium`.
+
+> **Note:** these specs are bug reproductions for desync and refresh/resync
+> scenarios, and several currently fail. They are kept because they encode real
+> scenarios worth fixing, not because they are expected to be green.
+
 ## Documentation
 
 **[docs.moduengine.com](https://docs.moduengine.com)**
