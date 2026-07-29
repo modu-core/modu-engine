@@ -10,7 +10,7 @@
  * they have identical hashes after initial sync.
  */
 
-import { connect, Connection, registerClientId } from '../../network/sdk/src/modu-network';
+import { connect, Connection, registerClientId } from '../../modu-network/sdk/src/modu-network';
 
 const CENTRAL_URL = process.env.CENTRAL_URL || 'http://127.0.0.1:9001';
 const NODE1_URL = process.env.NODE1_URL || 'ws://127.0.0.1:8001/ws';

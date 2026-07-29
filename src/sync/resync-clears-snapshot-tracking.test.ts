@@ -128,11 +128,19 @@ describe('Resync clears snapshot tracking', () => {
         console.log('\n=== PASS: clientsWithEntitiesFromSnapshot correctly cleared after resync ===');
     });
 
-    test('without fix: client join after resync would incorrectly skip onConnect', () => {
-        console.log('\n=== Test: Verify the bug scenario (without fix) ===\n');
+    test('after resync, a duplicate join is ignored but a real rejoin calls onConnect', () => {
+        console.log('\n=== Test: duplicate join vs. real rejoin after resync ===\n');
 
-        // This test documents what WOULD happen without the fix
-        // The fix ensures this scenario works correctly
+        // onConnect is gated on `activeClients`, not on clientsWithEntitiesFromSnapshot.
+        // handleResyncSnapshot() rebuilds activeClients from the snapshot's Player
+        // entities, so after a resync the clients in that snapshot are still active.
+        // That yields two distinct behaviours, both asserted below:
+        //
+        //   - A *duplicate* join for a still-active client is a no-op. Calling
+        //     onConnect here would spawn a second entity for a client that already
+        //     has one (a duplicate avatar).
+        //   - A *real* rejoin is preceded by a disconnect/leave input, which removes
+        //     the client from activeClients. The subsequent join then calls onConnect.
 
         const conn = createMockConnection('client-a');
         const game = new Game();
@@ -176,18 +184,25 @@ describe('Resync clears snapshot tracking', () => {
         console.log(`Entities after resync: ${entitiesAfterResync}`);
         expect(entitiesAfterResync).toBe(entitiesBeforeResync);
 
-        // Now if client-b joins AGAIN (e.g., server sends duplicate join),
-        // onConnect should be called (because client-b might have disconnected and rejoined)
-        // With the fix, clientsWithEntitiesFromSnapshot is empty, so onConnect IS called
-        // Without the fix, clientsWithEntitiesFromSnapshot would contain client-b, so onConnect would be SKIPPED
+        // client-b is still active (restored from the snapshot), so a stray duplicate
+        // join must NOT re-run onConnect and must NOT spawn another entity.
+        expect((game as any).activeClients).toContain('client-b');
 
         (game as any).processInput({ seq: 3, clientId: 'client-b', data: { type: 'join', clientId: 'client-b' } });
 
-        // With fix: onConnect is called, client-b gets a new entity
-        // This might create a duplicate, but that's the expected behavior for a rejoin
-        expect(onConnectCalls).toContain('client-b');
+        expect(onConnectCalls).not.toContain('client-b');
+        expect((game as any).world.entityCount).toBe(entitiesAfterResync);
+        console.log(`After duplicate join: onConnect=[${onConnectCalls.join(', ')}], entities=${(game as any).world.entityCount}`);
 
-        console.log(`onConnect calls after "rejoin": [${onConnectCalls.join(', ')}]`);
-        console.log('(With fix: onConnect IS called, which is correct for a rejoin)');
+        // A real rejoin: disconnect drops client-b from activeClients, so the join
+        // that follows is a genuine reconnection and does re-run onConnect.
+        (game as any).processInput({ seq: 4, clientId: 'client-b', data: { type: 'disconnect', clientId: 'client-b' } });
+        expect((game as any).activeClients).not.toContain('client-b');
+
+        (game as any).processInput({ seq: 5, clientId: 'client-b', data: { type: 'join', clientId: 'client-b' } });
+
+        expect(onConnectCalls).toContain('client-b');
+        expect((game as any).activeClients).toContain('client-b');
+        console.log(`After real rejoin: onConnect=[${onConnectCalls.join(', ')}]`);
     });
 });
